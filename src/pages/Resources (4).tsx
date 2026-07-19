@@ -27,10 +27,11 @@ const Resources = () => {
       title: "Breathing Exercises for Anxiety",
       description: "Learn simple breathing techniques to calm your mind during stressful moments. Perfect for exam anxiety.",
       type: "videos",
-  
+      duration: "8 min",
       language: "English",
       category: "Anxiety",
       thumbnail: "🧘‍♀️",
+      difficulty: "Beginner",
       link: "https://www.youtube.com/results?search_query=breathing+exercises+for+anxiety+students",
     },
     {
@@ -38,9 +39,11 @@ const Resources = () => {
       title: "Sleep Meditation in Hindi",
       description: "A soothing guided meditation to help you fall asleep peacefully. Narrated in Hindi for comfort.",
       type: "audio",
+      duration: "15 min",
       language: "Hindi",
       category: "Sleep",
       thumbnail: "🌙",
+      difficulty: "Beginner",
       link: "https://www.youtube.com/results?search_query=sleep+meditation+in+hindi",
     },
     {
@@ -48,11 +51,11 @@ const Resources = () => {
       title: "Managing Academic Stress - Complete Guide",
       description: "Comprehensive strategies for handling coursework pressure, time management, and maintaining balance.",
       type: "guides",
-
+      duration: "10 min read",
       language: "English",
       category: "Academic Stress",
       thumbnail: "📚",
-  
+      difficulty: "Intermediate",
       content:
         "Academic stress is one of the most common challenges students face, but it's manageable with the right approach.\n\n" +
         "1. Break work into smaller chunks. A big assignment feels overwhelming as a whole, but a to-do list of small, specific tasks feels achievable.\n\n" +
@@ -67,34 +70,35 @@ const Resources = () => {
       title: "Progressive Muscle Relaxation",
       description: "Video guide to systematically relax your body and release physical tension from stress.",
       type: "videos",
-    
-      language: "English, Hindi",
+      duration: "12 min",
+      language: "English",
       category: "Relaxation",
       thumbnail: "💆‍♂️",
-    
+      difficulty: "Beginner",
       link: "https://www.youtube.com/results?search_query=progressive+muscle+relaxation+guided",
     },
     {
       id: 5,
-      title: "Mindfulness for Students ",
-      description: "Introduction to mindfulness practices specifically designed for students.",
+      title: "Mindfulness for Students in Tamil",
+      description: "Introduction to mindfulness practices specifically designed for students, explained in Tamil.",
       type: "audio",
-      
-      language: "English , Hindi",
+      duration: "20 min",
+      language: "Tamil",
       category: "Mindfulness",
       thumbnail: "🧠",
-  
-      link: "https://www.youtube.com/results?search_query=mindfulness+for+students",
+      difficulty: "Beginner",
+      link: "https://www.youtube.com/results?search_query=mindfulness+for+students+in+tamil",
     },
     {
       id: 6,
       title: "Building Self-Confidence Workbook",
       description: "Interactive exercises and reflection prompts to build lasting self-confidence and self-esteem.",
       type: "guides",
-
+      duration: "30 min read",
       language: "English",
       category: "Self-Esteem",
       thumbnail: "⭐",
+      difficulty: "Intermediate",
       content:
         "Self-confidence isn't something you either have or don't — it's a skill you build through small, repeated actions.\n\n" +
         "Exercise 1 — Evidence log: Write down three things you did well this week, no matter how small. Do this daily for two weeks and notice the pattern.\n\n" +
@@ -108,23 +112,24 @@ const Resources = () => {
       title: "Quick Energy Boost Techniques",
       description: "5-minute techniques to combat fatigue and boost mental energy when studying or feeling low.",
       type: "videos",
-  
-      language: "English,Hindi",
+      duration: "5 min",
+      language: "English",
       category: "Energy",
       thumbnail: "⚡",
-
+      difficulty: "Beginner",
       link: "https://www.youtube.com/results?search_query=quick+energy+boost+techniques+students",
     },
     {
       id: 8,
-      title: "Overcoming Loneliness",
-      description: "A 4-part audio series addressing loneliness and building meaningful connections.",
+      title: "Overcoming Loneliness - Bengali Audio Series",
+      description: "A 4-part audio series addressing loneliness and building meaningful connections, in Bengali.",
       type: "audio",
-      language: "English , Hindi",
+      duration: "45 min total",
+      language: "Bengali",
       category: "Social Connection",
       thumbnail: "🤝",
-      link: "https://www.youtube.com/results?search_query=overcoming+loneliness+",
-    
+      difficulty: "Intermediate",
+      link: "https://www.youtube.com/results?search_query=overcoming+loneliness+bengali",
     }
   ];
 
@@ -262,6 +267,9 @@ const Resources = () => {
                           {lang.trim()}
                         </span>
                       ))}
+                      <span className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground">
+                        {resource.difficulty}
+                      </span>
                     </div>
                     
                     <div className="flex gap-2">
