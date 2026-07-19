@@ -2,11 +2,19 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Video, Headphones, FileText, Search, Play, Download, Heart, Brain, Zap } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { BookOpen, Video, Headphones, FileText, Search, Play, Download, Heart, Brain, Zap, ExternalLink } from "lucide-react";
 
 const Resources = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [openGuide, setOpenGuide] = useState<null | { title: string; content: string }>(null);
 
   const categories = [
     { id: "all", label: "All Resources", icon: BookOpen },
@@ -25,7 +33,8 @@ const Resources = () => {
       language: "English",
       category: "Anxiety",
       thumbnail: "🧘‍♀️",
-      difficulty: "Beginner"
+      difficulty: "Beginner",
+      link: "https://www.youtube.com/results?search_query=breathing+exercises+for+anxiety+students",
     },
     {
       id: 2,
@@ -36,7 +45,8 @@ const Resources = () => {
       language: "Hindi",
       category: "Sleep",
       thumbnail: "🌙",
-      difficulty: "Beginner"
+      difficulty: "Beginner",
+      link: "https://www.youtube.com/results?search_query=sleep+meditation+in+hindi",
     },
     {
       id: 3,
@@ -47,7 +57,15 @@ const Resources = () => {
       language: "English",
       category: "Academic Stress",
       thumbnail: "📚",
-      difficulty: "Intermediate"
+      difficulty: "Intermediate",
+      content:
+        "Academic stress is one of the most common challenges students face, but it's manageable with the right approach.\n\n" +
+        "1. Break work into smaller chunks. A big assignment feels overwhelming as a whole, but a to-do list of small, specific tasks feels achievable.\n\n" +
+        "2. Try the Pomodoro Technique. Study in focused 25-minute blocks with 5-minute breaks in between. After four rounds, take a longer 20-30 minute break.\n\n" +
+        "3. Protect your sleep. Pulling all-nighters before exams usually hurts performance more than it helps — your brain consolidates memory during sleep.\n\n" +
+        "4. Talk about it. Sharing what's stressing you with a friend, family member, or counselor can lighten the load more than people expect.\n\n" +
+        "5. Remember: one exam or assignment does not define your worth or your future. Progress matters more than perfection.\n\n" +
+        "If academic stress starts affecting your sleep, appetite, or mood for more than two weeks, consider booking a session with a counselor through this platform.",
     },
     {
       id: 4,
@@ -58,7 +76,8 @@ const Resources = () => {
       language: "English",
       category: "Relaxation",
       thumbnail: "💆‍♂️",
-      difficulty: "Beginner"
+      difficulty: "Beginner",
+      link: "https://www.youtube.com/results?search_query=progressive+muscle+relaxation+guided",
     },
     {
       id: 5,
@@ -69,7 +88,8 @@ const Resources = () => {
       language: "Tamil",
       category: "Mindfulness",
       thumbnail: "🧠",
-      difficulty: "Beginner"
+      difficulty: "Beginner",
+      link: "https://www.youtube.com/results?search_query=mindfulness+for+students+in+tamil",
     },
     {
       id: 6,
@@ -80,7 +100,14 @@ const Resources = () => {
       language: "English",
       category: "Self-Esteem",
       thumbnail: "⭐",
-      difficulty: "Intermediate"
+      difficulty: "Intermediate",
+      content:
+        "Self-confidence isn't something you either have or don't — it's a skill you build through small, repeated actions.\n\n" +
+        "Exercise 1 — Evidence log: Write down three things you did well this week, no matter how small. Do this daily for two weeks and notice the pattern.\n\n" +
+        "Exercise 2 — Challenge the inner critic: Next time you think 'I'm not good enough,' write the thought down, then write a more balanced version, like 'I'm still learning this, and that's okay.'\n\n" +
+        "Exercise 3 — Body language: Standing tall and making eye contact, even when you don't feel confident, has been shown to actually shift how you feel over time.\n\n" +
+        "Exercise 4 — Celebrate progress, not perfection: Compare yourself to who you were last month, not to someone else's highlight reel.\n\n" +
+        "Reflection prompt: What is one small thing you're proud of today? Write it down — you're allowed to take up space and be proud of yourself.",
     },
     {
       id: 7,
@@ -91,7 +118,8 @@ const Resources = () => {
       language: "English",
       category: "Energy",
       thumbnail: "⚡",
-      difficulty: "Beginner"
+      difficulty: "Beginner",
+      link: "https://www.youtube.com/results?search_query=quick+energy+boost+techniques+students",
     },
     {
       id: 8,
@@ -102,7 +130,8 @@ const Resources = () => {
       language: "Bengali",
       category: "Social Connection",
       thumbnail: "🤝",
-      difficulty: "Intermediate"
+      difficulty: "Intermediate",
+      link: "https://www.youtube.com/results?search_query=overcoming+loneliness+bengali",
     }
   ];
 
@@ -256,13 +285,44 @@ const Resources = () => {
                     </div>
                     
                     <div className="flex gap-2">
-                      <Button size="sm" className="flex-1">
-                        <Play className="w-3 h-3 mr-1" />
-                        {resource.type === "guides" ? "Read" : "Play"}
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Download className="w-3 h-3" />
-                      </Button>
+                      {resource.type === "guides" ? (
+                        <>
+                          <Button
+                            size="sm"
+                            className="flex-1"
+                            onClick={() =>
+                              setOpenGuide({ title: resource.title, content: resource.content || "" })
+                            }
+                          >
+                            <Play className="w-3 h-3 mr-1" />
+                            Read
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const blob = new Blob([resource.content || ""], { type: "text/plain" });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = `${resource.title}.txt`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }}
+                          >
+                            <Download className="w-3 h-3" />
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => window.open(resource.link, "_blank", "noopener,noreferrer")}
+                        >
+                          <ExternalLink className="w-3 h-3 mr-1" />
+                          {resource.type === "audio" ? "Listen" : "Watch"}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -292,6 +352,21 @@ const Resources = () => {
           </Card>
         </div>
       </div>
+
+      {/* Guide Reading Dialog */}
+      <Dialog open={!!openGuide} onOpenChange={(open) => !open && setOpenGuide(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{openGuide?.title}</DialogTitle>
+            <DialogDescription className="sr-only">
+              Full guide content
+            </DialogDescription>
+          </DialogHeader>
+          <div className="whitespace-pre-line text-sm text-foreground leading-relaxed pt-2">
+            {openGuide?.content}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
