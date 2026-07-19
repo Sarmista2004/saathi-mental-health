@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -9,10 +8,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { BookOpen, Video, Headphones, FileText, Search, Play, Download, Heart, Brain, Zap, ExternalLink } from "lucide-react";
+import { BookOpen, Video, Headphones, FileText, Play, Heart, Brain, Zap, ExternalLink } from "lucide-react";
 
 const Resources = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [openGuide, setOpenGuide] = useState<null | { title: string; content: string }>(null);
 
@@ -29,11 +27,10 @@ const Resources = () => {
       title: "Breathing Exercises for Anxiety",
       description: "Learn simple breathing techniques to calm your mind during stressful moments. Perfect for exam anxiety.",
       type: "videos",
-      duration: "8 min",
+  
       language: "English",
       category: "Anxiety",
       thumbnail: "🧘‍♀️",
-      difficulty: "Beginner",
       link: "https://www.youtube.com/results?search_query=breathing+exercises+for+anxiety+students",
     },
     {
@@ -41,11 +38,9 @@ const Resources = () => {
       title: "Sleep Meditation in Hindi",
       description: "A soothing guided meditation to help you fall asleep peacefully. Narrated in Hindi for comfort.",
       type: "audio",
-      duration: "15 min",
       language: "Hindi",
       category: "Sleep",
       thumbnail: "🌙",
-      difficulty: "Beginner",
       link: "https://www.youtube.com/results?search_query=sleep+meditation+in+hindi",
     },
     {
@@ -53,11 +48,11 @@ const Resources = () => {
       title: "Managing Academic Stress - Complete Guide",
       description: "Comprehensive strategies for handling coursework pressure, time management, and maintaining balance.",
       type: "guides",
-      duration: "10 min read",
+
       language: "English",
       category: "Academic Stress",
       thumbnail: "📚",
-      difficulty: "Intermediate",
+  
       content:
         "Academic stress is one of the most common challenges students face, but it's manageable with the right approach.\n\n" +
         "1. Break work into smaller chunks. A big assignment feels overwhelming as a whole, but a to-do list of small, specific tasks feels achievable.\n\n" +
@@ -72,35 +67,34 @@ const Resources = () => {
       title: "Progressive Muscle Relaxation",
       description: "Video guide to systematically relax your body and release physical tension from stress.",
       type: "videos",
-      duration: "12 min",
-      language: "English",
+    
+      language: "English, Hindi",
       category: "Relaxation",
       thumbnail: "💆‍♂️",
-      difficulty: "Beginner",
+    
       link: "https://www.youtube.com/results?search_query=progressive+muscle+relaxation+guided",
     },
     {
       id: 5,
-      title: "Mindfulness for Students in Tamil",
-      description: "Introduction to mindfulness practices specifically designed for students, explained in Tamil.",
+      title: "Mindfulness for Students ",
+      description: "Introduction to mindfulness practices specifically designed for students.",
       type: "audio",
-      duration: "20 min",
-      language: "Tamil",
+      
+      language: "English , Hindi",
       category: "Mindfulness",
       thumbnail: "🧠",
-      difficulty: "Beginner",
-      link: "https://www.youtube.com/results?search_query=mindfulness+for+students+in+tamil",
+  
+      link: "https://www.youtube.com/results?search_query=mindfulness+for+students",
     },
     {
       id: 6,
       title: "Building Self-Confidence Workbook",
       description: "Interactive exercises and reflection prompts to build lasting self-confidence and self-esteem.",
       type: "guides",
-      duration: "30 min read",
+
       language: "English",
       category: "Self-Esteem",
       thumbnail: "⭐",
-      difficulty: "Intermediate",
       content:
         "Self-confidence isn't something you either have or don't — it's a skill you build through small, repeated actions.\n\n" +
         "Exercise 1 — Evidence log: Write down three things you did well this week, no matter how small. Do this daily for two weeks and notice the pattern.\n\n" +
@@ -114,33 +108,28 @@ const Resources = () => {
       title: "Quick Energy Boost Techniques",
       description: "5-minute techniques to combat fatigue and boost mental energy when studying or feeling low.",
       type: "videos",
-      duration: "5 min",
-      language: "English",
+  
+      language: "English,Hindi",
       category: "Energy",
       thumbnail: "⚡",
-      difficulty: "Beginner",
+
       link: "https://www.youtube.com/results?search_query=quick+energy+boost+techniques+students",
     },
     {
       id: 8,
-      title: "Overcoming Loneliness - Bengali Audio Series",
-      description: "A 4-part audio series addressing loneliness and building meaningful connections, in Bengali.",
+      title: "Overcoming Loneliness",
+      description: "A 4-part audio series addressing loneliness and building meaningful connections.",
       type: "audio",
-      duration: "45 min total",
-      language: "Bengali",
+      language: "English , Hindi",
       category: "Social Connection",
       thumbnail: "🤝",
-      difficulty: "Intermediate",
-      link: "https://www.youtube.com/results?search_query=overcoming+loneliness+bengali",
+      link: "https://www.youtube.com/results?search_query=overcoming+loneliness+",
+    
     }
   ];
 
   const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || resource.type === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return selectedCategory === "all" || resource.type === selectedCategory;
   });
 
   const getIcon = (type: string) => {
@@ -182,18 +171,8 @@ const Resources = () => {
           </p>
         </div>
 
-        {/* Search and Filter */}
-        <div className="max-w-4xl mx-auto mb-8 space-y-4">
-          <div className="relative">
-            <Search className="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search resources by title, topic, or language..."
-              className="pl-10 h-12"
-            />
-          </div>
-          
+        {/* Filter */}
+        <div className="max-w-4xl mx-auto mb-8">
           <div className="flex flex-wrap gap-2 justify-center">
             {categories.map(({ id, label, icon: Icon }) => (
               <Button
@@ -261,7 +240,6 @@ const Resources = () => {
                       <div className="text-4xl mb-3">{resource.thumbnail}</div>
                       <div className="flex items-center gap-2">
                         <IconComponent className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{resource.duration}</span>
                       </div>
                     </div>
                     
@@ -276,43 +254,28 @@ const Resources = () => {
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(resource.category)}`}>
                         {resource.category}
                       </span>
-                      <span className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground">
-                        {resource.language}
-                      </span>
-                      <span className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground">
-                        {resource.difficulty}
-                      </span>
+                      {resource.language.split(",").map((lang) => (
+                        <span
+                          key={lang}
+                          className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground"
+                        >
+                          {lang.trim()}
+                        </span>
+                      ))}
                     </div>
                     
                     <div className="flex gap-2">
                       {resource.type === "guides" ? (
-                        <>
-                          <Button
-                            size="sm"
-                            className="flex-1"
-                            onClick={() =>
-                              setOpenGuide({ title: resource.title, content: resource.content || "" })
-                            }
-                          >
-                            <Play className="w-3 h-3 mr-1" />
-                            Read
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              const blob = new Blob([resource.content || ""], { type: "text/plain" });
-                              const url = URL.createObjectURL(blob);
-                              const a = document.createElement("a");
-                              a.href = url;
-                              a.download = `${resource.title}.txt`;
-                              a.click();
-                              URL.revokeObjectURL(url);
-                            }}
-                          >
-                            <Download className="w-3 h-3" />
-                          </Button>
-                        </>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() =>
+                            setOpenGuide({ title: resource.title, content: resource.content || "" })
+                          }
+                        >
+                          <Play className="w-3 h-3 mr-1" />
+                          Read
+                        </Button>
                       ) : (
                         <Button
                           size="sm"
@@ -334,7 +297,7 @@ const Resources = () => {
             <div className="text-center py-12">
               <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">No resources found</h3>
-              <p className="text-muted-foreground">Try adjusting your search terms or category filter.</p>
+              <p className="text-muted-foreground">Try adjusting your category filter.</p>
             </div>
           )}
         </div>
