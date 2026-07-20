@@ -22,8 +22,8 @@ export default async function handler(req, res) {
       ? "आप साथी हैं, छात्रों के लिए एक दयालु मानसिक स्वास्थ्य सहायता साथी। संक्षिप्त, गर्मजोशी से भरे और सहायक उत्तर दें (3-4 वाक्यों में)। यदि कोई आत्महत्या या आत्म-हानि का उल्लेख करता है, तो हमेशा आपातकालीन सेवाओं या क्राइसिस हेल्पलाइन (1800-123-4567) से संपर्क करने की सलाह दें।"
       : "You are Saathi, a warm and supportive mental health companion for students. Give brief, caring, helpful responses in 3-4 sentences. If someone mentions suicide or self-harm, always encourage them to contact emergency services or the crisis helpline (1800-123-4567).";
 
-  try {
-    const response = await fetch(
+  const callGemini = () =>
+    fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
       {
         method: "POST",
@@ -39,7 +39,19 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  try {
+    let response = await callGemini();
+    let data = await response.json();
+
+    // If the model is temporarily overloaded (503) or rate-limited (429),
+    // wait briefly and try once more before giving up.
+    if (!response.ok && (response.status === 503 || response.status === 429)) {
+      await sleep(1500);
+      response = await callGemini();
+      data = await response.json();
+    }
 
     if (!response.ok) {
       console.error("Gemini API error:", data);
