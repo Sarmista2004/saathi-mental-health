@@ -167,7 +167,7 @@ const Resources = () => {
             <h1 className="text-3xl font-bold text-foreground">Resource Hub</h1>
           </div>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Explore our curated collection of mental health resources including guided videos, audio sessions, and comprehensive guides in multiple regional languages.
+            Explore our curated collection of mental health resources including guided videos, audio sessions, and comprehensive guides in English and Hindi.
           </p>
         </div>
 
@@ -306,10 +306,9 @@ const Resources = () => {
         <div className="max-w-4xl mx-auto mt-12">
           <Card className="bg-soft-green border-secondary">
             <div className="p-6 text-center">
-              <h3 className="font-semibold text-secondary mb-2">Multilingual Support</h3>
+              <h3 className="font-semibold text-secondary mb-2">Language Support</h3>
               <p className="text-sm text-muted-foreground">
-                Our resources are available in English, Hindi, Tamil, Bengali, and more regional languages. 
-                We're continuously adding content to support students from diverse linguistic backgrounds.
+                Our resources are available in English and Hindi, as these are the most widely recognized languages among our student community.
               </p>
             </div>
           </Card>

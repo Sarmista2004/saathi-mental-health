@@ -1,12 +1,12 @@
 # Saathi — Student Mental Health Companion
 
-Saathi ("companion" in Hindi) is a mental health support platform built for students. It brings together an AI-style chat companion, counselor session booking, a curated multilingual resource hub, an anonymous peer support forum, and an analytics dashboard for monitoring platform-wide wellbeing trends.
+Saathi ("companion" in Hindi) is a mental health support platform built for students. It brings together an AI-style chat companion, counselor session booking, a curated resource hub, an anonymous peer support forum, and an analytics dashboard for monitoring platform-wide wellbeing trends.
 
 ## Features
 
 - **Talk to Saathi** — A conversational support chat with keyword-based emotion detection (stress, anxiety, sadness, loneliness), bilingual responses (English/Hindi), mood tracking with an emoji summary, chat history persistence, and chat export to JSON.
 - **Book a Counselor Session** — A confidential booking form for scheduling sessions (video, phone, in-person, or text), with urgency levels and privacy messaging.
-- **Resource Hub** — A searchable, filterable library of videos, audio sessions, and guides covering anxiety, sleep, academic stress, mindfulness, and more, offered in multiple regional languages (English, Hindi, Tamil, Bengali).
+- **Resource Hub** — A searchable, filterable library of videos, audio sessions, and guides covering anxiety, sleep, academic stress, mindfulness, and more, offered in English and Hindi.
 - **Peer Support Forum** — An anonymous community space where students can post, reply, and like posts across categories like academic stress, homesickness, and self-doubt.
 - **Analytics Dashboard** — Visualized trends (via Recharts) on stress/anxiety levels, session volume, peak usage hours, and crisis alerts, intended for platform administrators.
 

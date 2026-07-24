@@ -25,7 +25,7 @@ const Index = () => {
     {
       icon: BookOpen,
       title: "Resource Hub",
-      description: "Access curated mental health resources including guided videos, audio sessions, and guides in multiple languages.",
+      description: "Access curated mental health resources including guided videos, audio sessions, and guides.",
       link: "/resources",
       color: "bg-purple-50 text-purple-600", 
       buttonText: "Explore Resources"
