@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,15 @@ import { BookOpen, Video, Headphones, FileText, Play, Heart, Brain, Zap, Externa
 const Resources = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [openGuide, setOpenGuide] = useState<null | { title: string; content: string }>(null);
+  const [quickFilter, setQuickFilter] = useState<string[] | null>(null);
+  const [showCrisisDialog, setShowCrisisDialog] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const goToCategories = (categoryNames: string[]) => {
+    setSelectedCategory("all");
+    setQuickFilter(categoryNames);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const categories = [
     { id: "all", label: "All Resources", icon: BookOpen },
@@ -129,7 +138,9 @@ const Resources = () => {
   ];
 
   const filteredResources = resources.filter(resource => {
-    return selectedCategory === "all" || resource.type === selectedCategory;
+    const matchesType = selectedCategory === "all" || resource.type === selectedCategory;
+    const matchesQuickFilter = !quickFilter || quickFilter.includes(resource.category);
+    return matchesType && matchesQuickFilter;
   });
 
   const getIcon = (type: string) => {
@@ -178,7 +189,10 @@ const Resources = () => {
               <Button
                 key={id}
                 variant={selectedCategory === id ? "default" : "outline"}
-                onClick={() => setSelectedCategory(id)}
+                onClick={() => {
+                  setSelectedCategory(id);
+                  setQuickFilter(null);
+                }}
                 className="flex items-center gap-2"
               >
                 <Icon className="w-4 h-4" />
@@ -192,42 +206,74 @@ const Resources = () => {
         <div className="max-w-6xl mx-auto mb-12">
           <h2 className="text-2xl font-semibold mb-6 text-center">Quick Access</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="card-feature text-center cursor-pointer hover:scale-105 transition-transform">
+            <Card
+              className="card-feature text-center cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => setShowCrisisDialog(true)}
+            >
               <div className="p-6">
                 <Heart className="w-8 h-8 text-accent mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Crisis Support</h3>
                 <p className="text-sm text-muted-foreground mb-4">Immediate help resources for mental health emergencies</p>
-                <Button size="sm" className="btn-accent">Access Now</Button>
+                <Button size="sm" className="btn-accent" onClick={() => setShowCrisisDialog(true)}>Access Now</Button>
               </div>
             </Card>
             
-            <Card className="card-feature text-center cursor-pointer hover:scale-105 transition-transform">
+            <Card
+              className="card-feature text-center cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => goToCategories(["Relaxation", "Mindfulness", "Energy", "Sleep"])}
+            >
               <div className="p-6">
                 <Brain className="w-8 h-8 text-secondary mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Daily Wellness</h3>  
                 <p className="text-sm text-muted-foreground mb-4">Short exercises for daily mental health maintenance</p>
-                <Button size="sm" className="btn-secondary">Explore</Button>
+                <Button
+                  size="sm"
+                  className="btn-secondary"
+                  onClick={() => goToCategories(["Relaxation", "Mindfulness", "Energy", "Sleep"])}
+                >
+                  Explore
+                </Button>
               </div>
             </Card>
             
-            <Card className="card-feature text-center cursor-pointer hover:scale-105 transition-transform">
+            <Card
+              className="card-feature text-center cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => goToCategories(["Academic Stress", "Anxiety"])}
+            >
               <div className="p-6">
                 <Zap className="w-8 h-8 text-primary mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Exam Support</h3>
                 <p className="text-sm text-muted-foreground mb-4">Specialized resources for academic stress and exam anxiety</p>
-                <Button size="sm" className="btn-primary">Get Help</Button>
+                <Button
+                  size="sm"
+                  className="btn-primary"
+                  onClick={() => goToCategories(["Academic Stress", "Anxiety"])}
+                >
+                  Get Help
+                </Button>
               </div>
             </Card>
           </div>
         </div>
 
         {/* Resources Grid */}
-        <div className="max-w-6xl mx-auto">
+        {/* Resources Grid */}
+        <div className="max-w-6xl mx-auto" ref={gridRef}>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold">
               {selectedCategory === "all" ? "All Resources" : categories.find(c => c.id === selectedCategory)?.label} 
               <span className="text-muted-foreground text-lg ml-2">({filteredResources.length})</span>
             </h2>
+            {quickFilter && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setQuickFilter(null)}
+                className="text-muted-foreground"
+              >
+                Clear filter ✕
+              </Button>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -314,6 +360,40 @@ const Resources = () => {
           </Card>
         </div>
       </div>
+
+      {/* Crisis Support Dialog */}
+      <Dialog open={showCrisisDialog} onOpenChange={setShowCrisisDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-accent" />
+              You're not alone
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              Crisis support contact information
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-foreground leading-relaxed">
+              If you're in immediate danger or having thoughts of harming yourself, please reach out right now.
+              Someone is available to help you immediately.
+            </p>
+            <div className="space-y-2">
+              <div className="p-3 rounded-lg bg-muted">
+                <p className="text-sm font-semibold">Emergency Services</p>
+                <p className="text-lg font-bold text-accent">112</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted">
+                <p className="text-sm font-semibold">Crisis Helpline</p>
+                <p className="text-lg font-bold text-accent">1800-123-4567</p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              You can also talk to Saathi right now for support.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Guide Reading Dialog */}
       <Dialog open={!!openGuide} onOpenChange={(open) => !open && setOpenGuide(null)}>

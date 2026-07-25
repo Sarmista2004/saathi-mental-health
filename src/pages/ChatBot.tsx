@@ -26,7 +26,7 @@ const resourceSuggestionsMap: Record<string, ResourceSuggestion[]> = {
     { title: "Progressive Muscle Relaxation", description: "12 min video — release physical tension from stress", emoji: "💆‍♂️" },
   ],
   sadness: [
-    { title: "Overcoming Loneliness - Bengali Audio Series", description: "45 min — building meaningful connections", emoji: "🤝" },
+    { title: "Overcoming Loneliness", description: "45 min — building meaningful connections", emoji: "🤝" },
     { title: "Building Self-Confidence Workbook", description: "30 min read — exercises to build self-esteem", emoji: "⭐" },
   ],
   "academic stress": [
@@ -34,7 +34,7 @@ const resourceSuggestionsMap: Record<string, ResourceSuggestion[]> = {
     { title: "Quick Energy Boost Techniques", description: "5 min video — combat fatigue while studying", emoji: "⚡" },
   ],
   loneliness: [
-    { title: "Overcoming Loneliness - Bengali Audio Series", description: "45 min — building meaningful connections", emoji: "🤝" },
+    { title: "Overcoming Loneliness", description: "45 min — building meaningful connections", emoji: "🤝" },
     { title: "Mindfulness for Students in Tamil", description: "20 min audio — mindfulness practices for students", emoji: "🧠" },
   ],
   sleep: [
@@ -42,7 +42,7 @@ const resourceSuggestionsMap: Record<string, ResourceSuggestion[]> = {
     { title: "Progressive Muscle Relaxation", description: "12 min video — wind down before bed", emoji: "💆‍♂️" },
   ],
   homesickness: [
-    { title: "Overcoming Loneliness - Bengali Audio Series", description: "45 min — building meaningful connections", emoji: "🤝" },
+    { title: "Overcoming Loneliness", description: "45 min — building meaningful connections", emoji: "🤝" },
   ],
   "self-doubt": [
     { title: "Building Self-Confidence Workbook", description: "30 min read — exercises to build self-esteem", emoji: "⭐" },
