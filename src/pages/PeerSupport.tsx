@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -8,82 +9,41 @@ import { Users, MessageCircle, Heart, Plus, Search, Filter, ThumbsUp, MessageSqu
 import { useToast } from "@/hooks/use-toast";
 
 interface Reply {
-  id: string;
+  id: number;
   content: string;
   author: string;
-  timeAgo: string;
+  created_at: string;
 }
 
 interface Post {
-  id: string;
+  id: number;
   title: string;
   content: string;
   category: string;
-  timeAgo: string;
   likes: number;
-  replies: number;
-  isAnonymous: boolean;
+  is_anonymous: boolean;
   author: string;
-  isLiked?: boolean;
-  replyList?: Reply[]; // ✅ Added reply list
+  created_at: string;
+  replyList?: Reply[];
 }
 
-const PeerSupport = () => {
-  const [posts, setPosts] = useState<Post[]>([
-    {
-      id: "1",
-      title: "Feeling overwhelmed with final exams approaching",
-      content: "Hey everyone, I'm in my third year and finals are just around the corner. I've been having panic attacks thinking about all the studying I need to do. Anyone else feeling this way? How do you manage exam stress?",
-      category: "Academic Stress",
-      timeAgo: "2 hours ago",
-      likes: 12,
-      replies: 8,
-      isAnonymous: true,
-      author: "Anonymous Student",
-      isLiked: false,
-      replyList: []
-    },
-    {
-      id: "2", 
-      title: "Homesickness is hitting hard this semester",
-      content: "This is my first year living away from home and I'm really struggling with homesickness. I miss my family so much that it's affecting my studies. Any tips for dealing with this?",
-      category: "Homesickness",
-      timeAgo: "5 hours ago",
-      likes: 18,
-      replies: 15,
-      isAnonymous: true,
-      author: "FirstYear2024",
-      isLiked: true,
-      replyList: []
-    },
-    {
-      id: "3",
-      title: "Finding it hard to make friends",
-      content: "I've been at uni for 6 months now but I still feel like I don't have any real friends. I see groups everywhere but feel like I don't fit in anywhere. How did you all make your first friendships at university?",
-      category: "Social Connection",
-      timeAgo: "1 day ago", 
-      likes: 24,
-      replies: 22,
-      isAnonymous: false,
-      author: "QuietStudent",
-      isLiked: false,
-      replyList: []
-    },
-    {
-      id: "4",
-      title: "Dealing with imposter syndrome in my program",
-      content: "I'm studying computer science and sometimes I feel like I don't belong here. Everyone seems so much smarter than me. I keep thinking they'll realize I'm not cut out for this. Anyone else experience this?",
-      category: "Self-Doubt",
-      timeAgo: "2 days ago",
-      likes: 31,
-      replies: 19,
-      isAnonymous: true,
-      author: "Anonymous Student",
-      isLiked: true,
-      replyList: []
-    }
-  ]);
+// Turns a timestamp into "2 hours ago", "Just now", etc.
+const timeAgo = (dateString: string) => {
+  const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+};
 
+const PeerSupport = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [likedPostIds, setLikedPostIds] = useState<Set<number>>(new Set());
+  const [likingPostId, setLikingPostId] = useState<number | null>(null);
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -95,12 +55,12 @@ const PeerSupport = () => {
   });
   const { toast } = useToast();
 
-  const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({}); // ✅ reply input per post
-  const [replyingTo, setReplyingTo] = useState<string | null>(null); // ✅ track which post is being replied to
+  const [replyContent, setReplyContent] = useState<{ [key: number]: string }>({});
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
 
   const categories = [
     "Academic Stress",
-    "Anxiety", 
+    "Anxiety",
     "Depression",
     "Social Connection",
     "Homesickness",
@@ -111,43 +71,132 @@ const PeerSupport = () => {
     "Other"
   ];
 
-  const handleLike = (postId: string) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-            isLiked: !post.isLiked 
-          }
-        : post
-    ));
+  // --- Load posts (and their replies) from Supabase on mount ---
+  const loadPosts = async () => {
+    setLoading(true);
+
+    const { data: postsData, error: postsError } = await supabase
+      .from("posts")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (postsError) {
+      toast({
+        title: "Couldn't load posts",
+        description: postsError.message,
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
+    const { data: repliesData, error: repliesError } = await supabase
+      .from("replies")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (repliesError) {
+      toast({
+        title: "Couldn't load replies",
+        description: repliesError.message,
+        variant: "destructive"
+      });
+    }
+
+    const postsWithReplies: Post[] = (postsData || []).map((post) => ({
+      ...post,
+      replyList: (repliesData || []).filter((r) => r.post_id === post.id)
+    }));
+
+    setPosts(postsWithReplies);
+    setLoading(false);
   };
 
-  const handleReplySubmit = (postId: string) => {
-    if (!replyContent[postId]?.trim()) return;
+  useEffect(() => {
+    loadPosts();
+    // Restore which posts this browser has already liked, so refreshing
+    // doesn't let someone like the same post infinitely.
+    const stored = localStorage.getItem("likedPosts");
+    if (stored) {
+      try {
+        setLikedPostIds(new Set(JSON.parse(stored)));
+      } catch {}
+    }
+  }, []);
 
-    const newReply: Reply = {
-      id: Date.now().toString(),
-      content: replyContent[postId],
-      author: "You",
-      timeAgo: "Just now"
-    };
+  // --- Like / unlike a post ---
+  
+  const handleLike = async (postId: number) => {
+    if (likingPostId === postId) return;
+    setLikingPostId(postId);
 
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            replies: post.replies + 1,
-            replyList: [...(post.replyList || []), newReply]
-          }
-        : post
-    ));
+    const alreadyLiked = likedPostIds.has(postId);
+
+    const { data: currentPost, error: fetchError } = await supabase
+      .from("posts")
+      .select("likes")
+      .eq("id", postId)
+      .single();
+
+    if (fetchError || !currentPost) {
+      toast({ title: "Couldn't update like", description: fetchError?.message, variant: "destructive" });
+      setLikingPostId(null);
+      return;
+    }
+
+    const newLikes = Math.max(0, alreadyLiked ? currentPost.likes - 1 : currentPost.likes + 1);
+
+    const { error } = await supabase
+      .from("posts")
+      .update({ likes: newLikes })
+      .eq("id", postId);
+
+    if (error) {
+      toast({ title: "Couldn't update like", description: error.message, variant: "destructive" });
+      setLikingPostId(null);
+      return;
+    }
+
+    setPosts(posts.map((p) => (p.id === postId ? { ...p, likes: newLikes } : p)));
+
+    const updatedLiked = new Set(likedPostIds);
+    if (alreadyLiked) updatedLiked.delete(postId);
+    else updatedLiked.add(postId);
+    setLikedPostIds(updatedLiked);
+    localStorage.setItem("likedPosts", JSON.stringify(Array.from(updatedLiked)));
+    setLikingPostId(null);
+  };
+
+  // --- Submit a reply ---
+  const handleReplySubmit = async (postId: number) => {
+    const content = replyContent[postId]?.trim();
+    if (!content) return;
+
+    const { data, error } = await supabase
+      .from("replies")
+      .insert({ post_id: postId, content, author: "You" })
+      .select()
+      .single();
+
+    if (error) {
+      toast({ title: "Couldn't post reply", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    setPosts(
+      posts.map((post) =>
+        post.id === postId
+          ? { ...post, replyList: [...(post.replyList || []), data] }
+          : post
+      )
+    );
 
     setReplyContent({ ...replyContent, [postId]: "" });
     setReplyingTo(null);
   };
 
-  const handleSubmitPost = (e: React.FormEvent) => {
+  // --- Submit a new post ---
+  const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPost.title.trim() || !newPost.content.trim() || !newPost.category) {
       toast({
@@ -158,33 +207,38 @@ const PeerSupport = () => {
       return;
     }
 
-    const post: Post = {
-      id: Date.now().toString(),
-      title: newPost.title,
-      content: newPost.content,
-      category: newPost.category,
-      timeAgo: "Just now",
-      likes: 0,
-      replies: 0,
-      isAnonymous: newPost.isAnonymous,
-      author: newPost.isAnonymous ? "Anonymous Student" : "You",
-      isLiked: false,
-      replyList: []
-    };
+    const { data, error } = await supabase
+      .from("posts")
+      .insert({
+        title: newPost.title,
+        content: newPost.content,
+        category: newPost.category,
+        likes: 0,
+        is_anonymous: newPost.isAnonymous,
+        author: newPost.isAnonymous ? "Anonymous Student" : "You"
+      })
+      .select()
+      .single();
 
-    setPosts([post, ...posts]);
+    if (error) {
+      toast({ title: "Couldn't share post", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    setPosts([{ ...data, replyList: [] }, ...posts]);
     setNewPost({ title: "", content: "", category: "", isAnonymous: true });
     setShowNewPostForm(false);
-    
+
     toast({
       title: "Post shared successfully!",
-      description: "Your post is now visible to the community. Thank you for sharing.",
+      description: "Your post is now visible to the community. Thank you for sharing."
     });
   };
 
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.content.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredPosts = posts.filter((post) => {
+    const matchesSearch =
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || post.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -283,14 +337,14 @@ const PeerSupport = () => {
                   Cancel
                 </Button>
               </div>
-              
+
               <Input
                 value={newPost.title}
                 onChange={(e) => setNewPost({...newPost, title: e.target.value})}
                 placeholder="Give your post a title..."
                 required
               />
-              
+
               <Textarea
                 value={newPost.content}
                 onChange={(e) => setNewPost({...newPost, content: e.target.value})}
@@ -298,7 +352,7 @@ const PeerSupport = () => {
                 rows={4}
                 required
               />
-              
+
               <div className="flex items-center gap-4">
                 <Select value={newPost.category} onValueChange={(value) => setNewPost({...newPost, category: value})}>
                   <SelectTrigger className="flex-1">
@@ -310,7 +364,7 @@ const PeerSupport = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                
+
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -324,7 +378,7 @@ const PeerSupport = () => {
                   </label>
                 </div>
               </div>
-              
+
               <Button type="submit" className="btn-primary">
                 <Heart className="w-4 h-4 mr-2" />
                 Share Post
@@ -334,92 +388,96 @@ const PeerSupport = () => {
         )}
 
         {/* Posts */}
-        <div className="space-y-6">
-          {filteredPosts.map((post) => (
-            <Card key={post.id} className="card-calm hover:shadow-soft transition-all">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(post.category)}`}>
-                        {post.category}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {post.author} • {post.timeAgo}
-                      </span>
+        {loading ? (
+          <div className="text-center py-12 text-muted-foreground">Loading posts...</div>
+        ) : (
+          <div className="space-y-6">
+            {filteredPosts.map((post) => (
+              <Card key={post.id} className="card-calm hover:shadow-soft transition-all">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(post.category)}`}>
+                          {post.category}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {post.author} • {timeAgo(post.created_at)}
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-3">{post.title}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{post.content}</p>
                     </div>
-                    <h3 className="font-semibold text-lg mb-3">{post.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{post.content}</p>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-4 pt-4 border-t border-border">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleLike(post.id)}
-                    className={`flex items-center gap-2 ${post.isLiked ? 'text-accent' : 'text-muted-foreground'}`}
-                  >
-                    <ThumbsUp className={`w-4 h-4 ${post.isLiked ? 'fill-current' : ''}`} />
-                    {post.likes}
-                  </Button>
-                  
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground">
-                    <MessageSquare className="w-4 h-4" />
-                    {post.replies} replies
-                  </Button>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-muted-foreground"
-                    onClick={() => setReplyingTo(replyingTo === post.id ? null : post.id)}
-                  >
-                    Reply
-                  </Button>
-                </div>
 
-                {/* ✅ Reply Section */}
-                {replyingTo === post.id && (
-                  <div className="mt-4 space-y-3">
-                    <Textarea
-                      placeholder="Write your reply..."
-                      value={replyContent[post.id] || ""}
-                      onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
-                      rows={2}
-                    />
-                    <Button size="sm" className="btn-primary" onClick={() => handleReplySubmit(post.id)}>
-                      Post Reply
+                  <div className="flex items-center gap-4 pt-4 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleLike(post.id)}
+                      disabled={likingPostId === post.id}
+                      className={`flex items-center gap-2 ${likedPostIds.has(post.id) ? 'text-accent' : 'text-muted-foreground'}`}
+                    >
+                      <ThumbsUp className={`w-4 h-4 ${likedPostIds.has(post.id) ? 'fill-current' : ''}`} />
+                      {post.likes}
+                    </Button>
+
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground">
+                      <MessageSquare className="w-4 h-4" />
+                      {post.replyList?.length || 0} replies
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground"
+                      onClick={() => setReplyingTo(replyingTo === post.id ? null : post.id)}
+                    >
+                      Reply
                     </Button>
                   </div>
-                )}
 
-                {post.replyList && post.replyList.length > 0 && (
-                  <div className="mt-4 pl-4 border-l space-y-2">
-                    {post.replyList.map((reply) => (
-                      <div key={reply.id} className="bg-muted p-2 rounded text-sm">
-                        <span className="font-medium">{reply.author}</span> • {reply.timeAgo}
-                        <p>{reply.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  {replyingTo === post.id && (
+                    <div className="mt-4 space-y-3">
+                      <Textarea
+                        placeholder="Write your reply..."
+                        value={replyContent[post.id] || ""}
+                        onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+                        rows={2}
+                      />
+                      <Button size="sm" className="btn-primary" onClick={() => handleReplySubmit(post.id)}>
+                        Post Reply
+                      </Button>
+                    </div>
+                  )}
+
+                  {post.replyList && post.replyList.length > 0 && (
+                    <div className="mt-4 pl-4 border-l space-y-2">
+                      {post.replyList.map((reply) => (
+                        <div key={reply.id} className="bg-muted p-2 rounded text-sm">
+                          <span className="font-medium">{reply.author}</span> • {timeAgo(reply.created_at)}
+                          <p>{reply.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+
+            {filteredPosts.length === 0 && (
+              <div className="text-center py-12">
+                <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No posts found</h3>
+                <p className="text-muted-foreground mb-4">Try adjusting your search or be the first to share something!</p>
+                <Button onClick={() => setShowNewPostForm(true)} className="btn-primary">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create First Post
+                </Button>
               </div>
-            </Card>
-          ))}
-          
-          {filteredPosts.length === 0 && (
-            <div className="text-center py-12">
-              <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No posts found</h3>
-              <p className="text-muted-foreground mb-4">Try adjusting your search or be the first to share something!</p>
-              <Button onClick={() => setShowNewPostForm(true)} className="btn-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                Create First Post
-              </Button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
