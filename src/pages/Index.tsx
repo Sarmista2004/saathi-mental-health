@@ -178,21 +178,7 @@ const Index = () => {
                 <Shield className="w-8 h-8 text-white" />
               </div>
               
-              <h3 className="text-2xl font-bold text-accent mb-4">Crisis Support Available</h3>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                If you're having thoughts of self-harm or experiencing a mental health emergency, 
-                please reach out immediately. You're not alone, and help is available right now.
-              </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-accent hover:bg-accent/90 text-white">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Crisis Chat - Available Now
-                </Button>
-                <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-white">
-                  Emergency Helpline: 1800-123-4567
-                </Button>
-              </div>
             </div>
           </Card>
         </div>
@@ -232,3 +218,8 @@ const Index = () => {
 };
 
 export default Index;
+
+
+
+
+
