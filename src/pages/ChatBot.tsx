@@ -473,7 +473,7 @@ const ChatBot = () => {
             <div className="text-sm">
               <p className="font-medium text-accent">Emergency Support</p>
               <p className="text-accent/80 mt-1">
-                If you're having thoughts of self-harm, please contact emergency services (911) or
+                If you're having thoughts of self-harm, please contact emergency services (112) or
                 our crisis helpline: 1800-123-4567
               </p>
             </div>
