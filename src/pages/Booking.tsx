@@ -173,7 +173,7 @@ const Booking = () => {
                 <Input
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+91 98765 43210"
                 />
               </div>
               <div>
