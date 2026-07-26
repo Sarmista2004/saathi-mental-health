@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,19 +20,41 @@ const Booking = () => {
     urgency: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitted(true);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    const { error } = await supabase.from("bookings").insert({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      session_type: formData.sessionType,
+      preferred_date: formData.preferredDate,
+      preferred_time: formData.preferredTime,
+      urgency: formData.urgency,
+      concerns: formData.concerns,
+    });
+
+    setIsSubmitting(false);
+
+    if (error) {
       toast({
-        title: "Booking Confirmed!",
-        description: "We'll contact you within 24 hours to confirm your session details.",
+        title: "Couldn't submit booking",
+        description: error.message,
+        variant: "destructive",
       });
-    }, 1000);
+      return;
+    }
+
+    setIsSubmitted(true);
+    toast({
+      title: "Booking Confirmed!",
+      description: "We'll contact you within 24 hours to confirm your session details.",
+    });
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -66,7 +89,22 @@ const Booking = () => {
               </div>
             </div>
           </div>
-          <Button onClick={() => setIsSubmitted(false)} variant="outline">
+          <Button
+            onClick={() => {
+              setIsSubmitted(false);
+              setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                preferredDate: "",
+                preferredTime: "",
+                sessionType: "",
+                concerns: "",
+                urgency: "",
+              });
+            }}
+            variant="outline"
+          >
             Book Another Session
           </Button>
         </div>
@@ -140,7 +178,11 @@ const Booking = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Session Type *</label>
-                <Select required onValueChange={(value) => handleInputChange("sessionType", value)}>
+                <Select
+                  required
+                  value={formData.sessionType}
+                  onValueChange={(value) => handleInputChange("sessionType", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose session type" />
                   </SelectTrigger>
@@ -167,7 +209,11 @@ const Booking = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Preferred Time *</label>
-                <Select required onValueChange={(value) => handleInputChange("preferredTime", value)}>
+                <Select
+                  required
+                  value={formData.preferredTime}
+                  onValueChange={(value) => handleInputChange("preferredTime", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select time slot" />
                   </SelectTrigger>
@@ -186,7 +232,11 @@ const Booking = () => {
 
             <div>
               <label className="block text-sm font-medium mb-2">Urgency Level *</label>
-              <Select required onValueChange={(value) => handleInputChange("urgency", value)}>
+              <Select
+                required
+                value={formData.urgency}
+                onValueChange={(value) => handleInputChange("urgency", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="How urgent is your need for support?" />
                 </SelectTrigger>
@@ -217,9 +267,9 @@ const Booking = () => {
               </p>
             </div>
 
-            <Button type="submit" className="w-full btn-primary">
+            <Button type="submit" className="w-full btn-primary" disabled={isSubmitting}>
               <Calendar className="w-4 h-4 mr-2" />
-              Submit Booking Request
+              {isSubmitting ? "Submitting..." : "Submit Booking Request"}
             </Button>
           </form>
         </Card>
