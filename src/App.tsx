@@ -10,7 +10,6 @@ import ChatBot from "./pages/ChatBot";
 import Booking from "./pages/Booking";
 import Resources from "./pages/Resources";
 import PeerSupport from "./pages/PeerSupport";
-import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,7 +29,6 @@ const App = () => (
               <Route path="/booking" element={<Booking />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/peer-support" element={<PeerSupport />} />
-              <Route path="/admin" element={<AdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

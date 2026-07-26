@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, Calendar, BookOpen, Users, BarChart3, Heart, Shield, Clock, Users2, Star } from "lucide-react";
+import { MessageCircle, Calendar, BookOpen, Users, Heart, Shield, Clock } from "lucide-react";
 import heroImage from "@/assets/hero-mental-health.jpg";
 
 const Index = () => {
@@ -41,29 +41,12 @@ const Index = () => {
   ];
 
   const stats = [
-    { number: "2,847", label: "Students Supported", icon: Users2 },
-    { number: "1,234", label: "Counseling Sessions", icon: Calendar },
-    { number: "845", label: "Community Posts", icon: MessageCircle },
-    { number: "4.9", label: "Average Rating", icon: Star }
+    { number: "24/7", label: "Support Available", icon: Clock },
+    { number: "100%", label: "Confidential", icon: Shield },
+    { number: "Free", label: "To Use", icon: Heart },
+    { number: "AI", label: "Powered Chat", icon: MessageCircle }
   ];
 
-  const testimonials = [
-    {
-      text: "Saathi helped me through my darkest moments during finals. The 24/7 chat support made me feel less alone.",
-      author: "Anonymous Student, Engineering",
-      year: "3rd Year"
-    },
-    {
-      text: "The peer support forum connected me with others going through similar struggles. I finally felt understood.",
-      author: "Anonymous Student, Arts",
-      year: "2nd Year"
-    },
-    {
-      text: "Booking a counselor session was so easy and confidential. It changed my perspective on seeking help.",
-      author: "Anonymous Student, Medicine",
-      year: "4th Year"
-    }
-  ];
 
   return (
     <div className="min-h-screen">
@@ -212,43 +195,6 @@ const Index = () => {
               </div>
             </div>
           </Card>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Stories from Our Community  
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Real experiences from students who found support through Saathi
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="card-calm">
-                <div className="p-6">
-                  <div className="flex items-center justify-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  
-                  <p className="text-muted-foreground italic mb-6 leading-relaxed">
-                    "{testimonial.text}"
-                  </p>
-                  
-                  <div className="text-center">
-                    <p className="font-semibold text-foreground">{testimonial.author}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.year}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
         </div>
       </section>
 
