@@ -169,20 +169,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Emergency Support */}
-      <section className="py-16 bg-accent-light">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto bg-white border-accent shadow-soft">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              
-              
-            </div>
-          </Card>
-        </div>
-      </section>
+    
+
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-primary">
