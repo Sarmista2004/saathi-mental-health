@@ -168,10 +168,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-    
-
-
       {/* CTA Section */}
       <section className="py-20 bg-gradient-primary">
         <div className="container mx-auto px-4 text-center">
@@ -206,7 +202,6 @@ const Index = () => {
 };
 
 export default Index;
-
 
 
 
